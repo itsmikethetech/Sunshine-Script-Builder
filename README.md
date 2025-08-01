@@ -1,5 +1,8 @@
 # Sunshine Script Builder
 
+> **💖 Support This Project**  
+> If you find this tool helpful, please consider supporting development on [Patreon](https://patreon.com/mikethetech)! Your support helps maintain and improve this project.
+
 A web-based GUI tool for creating and managing Sunshine prep-cmd scripts. This application provides an intuitive interface for building Windows batch scripts that can control displays, audio devices, processes, and system settings before and after Sunshine game streaming sessions.
 
 ## Features
