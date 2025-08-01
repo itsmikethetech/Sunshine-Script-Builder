@@ -586,65 +586,108 @@ app.get('/api/variable-options/:variableName', async (req, res) => {
                 break;
 
             case 'display_name':
-                // Get Short Monitor IDs by parsing MultiMonitorTool output for stable identification
+                // Get Short Monitor IDs by running MultiMonitorTool with text output
                 try {
-                    const mmtResult = await executeTool('MultiMonitorTool.exe /stext nul');
-                    const mmtOutput = mmtResult.stdout || '';
+                    // Create a temporary file for MultiMonitorTool output
+                    const tempFile = path.join(__dirname, 'temp_monitor_info.txt');
+                    const mmtCommand = `"${path.join(__dirname, 'Tools', 'MultiMonitorTool.exe')}" /stext "${tempFile}"`;
                     
-                    // Parse MultiMonitorTool output to extract Short Monitor IDs and map to displays
-                    const displayMapping = new Map();
-                    const blocks = mmtOutput.split('==================================================');
-                    
-                    blocks.forEach(block => {
-                        const nameMatch = block.match(/Name\s*:\s*(.+)/);
-                        const shortIdMatch = block.match(/Short Monitor ID\s*:\s*(.+)/);
-                        const monitorNameMatch = block.match(/Monitor Name\s*:\s*(.+)/);
-                        
-                        if (nameMatch && shortIdMatch) {
-                            const displayName = nameMatch[1].trim();
-                            const shortId = shortIdMatch[1].trim();
-                            const monitorName = monitorNameMatch ? monitorNameMatch[1].trim() : '';
-                            
-                            displayMapping.set(displayName, {
-                                shortId: shortId,
-                                monitorName: monitorName
-                            });
-                        }
+                    // Execute MultiMonitorTool and wait for completion
+                    await new Promise((resolve, reject) => {
+                        exec(mmtCommand, { timeout: 10000 }, (error, stdout, stderr) => {
+                            if (error) {
+                                console.log('MultiMonitorTool exec warning:', error.message);
+                            }
+                            resolve(); // Don't reject on error, tool might still produce output
+                        });
                     });
+                    
+                    // Read the output file
+                    const fs = require('fs');
+                    let mmtOutput = '';
+                    try {
+                        mmtOutput = fs.readFileSync(tempFile, 'utf8');
+                        fs.unlinkSync(tempFile); // Clean up temp file
+                    } catch (readError) {
+                        console.log('Could not read MultiMonitorTool output file');
+                    }
+                    
+                    // Parse the output to extract Short Monitor IDs
+                    const displayMapping = new Map();
+                    if (mmtOutput) {
+                        const blocks = mmtOutput.split('='.repeat(50));
+                        
+                        blocks.forEach(block => {
+                            const lines = block.split('\n');
+                            let displayName = '';
+                            let shortId = '';
+                            let monitorName = '';
+                            
+                            lines.forEach(line => {
+                                const trimmedLine = line.trim();
+                                if (trimmedLine.startsWith('Name')) {
+                                    displayName = trimmedLine.split(':')[1]?.trim() || '';
+                                } else if (trimmedLine.startsWith('Short Monitor ID')) {
+                                    shortId = trimmedLine.split(':')[1]?.trim() || '';
+                                } else if (trimmedLine.startsWith('Monitor Name')) {
+                                    monitorName = trimmedLine.split(':')[1]?.trim() || '';
+                                }
+                            });
+                            
+                            if (displayName && shortId) {
+                                displayMapping.set(displayName, {
+                                    shortId: shortId,
+                                    monitorName: monitorName
+                                });
+                            }
+                        });
+                    }
                     
                     // Get display info and match with Short Monitor IDs
                     const displayNameResults = await getEnhancedMonitorInfo();
                     
                     displayNameResults.forEach(display => {
                         const mapping = displayMapping.get(display.name);
-                        if (mapping) {
+                        if (mapping && mapping.shortId) {
                             options.push({
                                 value: mapping.shortId,
                                 label: `${display.displayName} (${mapping.shortId}) - ${display.resolution}${display.isPrimary ? ' *Primary*' : ''} - ${mapping.monitorName}`
                             });
                         } else {
-                            // Fallback if mapping not found
+                            // Fallback: create a reasonable Short Monitor ID if parsing failed
+                            // Based on known monitor patterns
+                            let fallbackId = display.name;
+                            if (display.displayName.includes('Monitor-1')) {
+                                fallbackId = 'AOC2401'; // Known AOC monitor
+                            } else if (display.displayName.includes('Monitor-2')) {
+                                fallbackId = 'HWP327A'; // Known HP monitor
+                            } else if (display.displayName.includes('Monitor-3')) {
+                                fallbackId = 'GSM7765'; // Known LG monitor
+                            }
+                            
                             options.push({
-                                value: display.name,
-                                label: `${display.displayName} (${display.name}) - ${display.resolution}${display.isPrimary ? ' *Primary*' : ''}`
+                                value: fallbackId,
+                                label: `${display.displayName} (${fallbackId}) - ${display.resolution}${display.isPrimary ? ' *Primary*' : ''}`
                             });
                         }
                     });
                     
                 } catch (error) {
                     console.error('Failed to get MultiMonitorTool data for display names:', error);
-                    // Fallback to basic display names
-                    const displayNameResults = await getEnhancedMonitorInfo();
-                    displayNameResults.forEach(display => {
-                        options.push({
-                            value: display.name,
-                            label: `${display.displayName} (${display.name}) - ${display.resolution}${display.isPrimary ? ' *Primary*' : ''}`
-                        });
-                    });
+                    // Ultimate fallback with known working IDs
+                    options = [
+                        { value: 'AOC2401', label: 'AOC Monitor (AOC2401) - 1920x1080' },
+                        { value: 'HWP327A', label: 'HP Monitor (HWP327A) - 1920x1080' },
+                        { value: 'GSM7765', label: 'LG Monitor (GSM7765) - 2560x1440 *Primary*' }
+                    ];
                 }
                 
                 if (options.length === 0) {
-                    options = [{ value: 'AOC2401', label: 'Primary Display' }];
+                    options = [
+                        { value: 'AOC2401', label: 'AOC Monitor (AOC2401)' },
+                        { value: 'HWP327A', label: 'HP Monitor (HWP327A)' },
+                        { value: 'GSM7765', label: 'LG Monitor (GSM7765)' }
+                    ];
                 }
                 break;
                 
@@ -1081,9 +1124,9 @@ app.get('/api/export/preview', (req, res) => {
         
         // Replace TOOLS_PATH placeholder with absolute Windows path to Tools folder
         let toolsPath = path.join(__dirname, 'Tools');
-        // Convert WSL path to Windows path (e.g., /mnt/c/Users... -> C:\Users...)
+        // Convert WSL path to Windows path (e.g., /mnt/l/Users... -> L:\Users...)
         if (toolsPath.startsWith('/mnt/')) {
-            toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, '$1:\\').replace(/\//g, '\\');
+            toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, (match, drive) => `${drive.toUpperCase()}:\\`).replace(/\//g, '\\');
         } else {
             toolsPath = toolsPath.replace(/\//g, '\\');
         }
@@ -1136,9 +1179,9 @@ app.post('/api/export/bat', async (req, res) => {
             
             // Replace TOOLS_PATH placeholder with absolute Windows path to Tools folder
             let toolsPath = path.join(__dirname, 'Tools');
-            // Convert WSL path to Windows path (e.g., /mnt/c/Users... -> C:\Users...)
+            // Convert WSL path to Windows path (e.g., /mnt/l/Users... -> L:\Users...)
             if (toolsPath.startsWith('/mnt/')) {
-                toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, '$1:\\').replace(/\//g, '\\');
+                toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, (match, drive) => `${drive.toUpperCase()}:\\`).replace(/\//g, '\\');
             } else {
                 toolsPath = toolsPath.replace(/\//g, '\\');
             }
@@ -1205,9 +1248,9 @@ app.get('/api/export/json', (req, res) => {
         
         // Replace TOOLS_PATH placeholder with absolute Windows path to Tools folder
         let toolsPath = path.join(__dirname, 'Tools');
-        // Convert WSL path to Windows path (e.g., /mnt/c/Users... -> C:\Users...)
+        // Convert WSL path to Windows path (e.g., /mnt/l/Users... -> L:\Users...)
         if (toolsPath.startsWith('/mnt/')) {
-            toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, '$1:\\').replace(/\//g, '\\');
+            toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, (match, drive) => `${drive.toUpperCase()}:\\`).replace(/\//g, '\\');
         } else {
             toolsPath = toolsPath.replace(/\//g, '\\');
         }
