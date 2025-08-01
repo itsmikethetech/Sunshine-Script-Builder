@@ -192,7 +192,7 @@ async function hasVariableOptions(variableName) {
     // Variables that have predefined options
     const variablesWithOptions = [
         'device_id', 'device_name', 'audio_device_id', 'display_device_id',
-        'audio_device_name', 'service_name', 'process_name', 
+        'audio_device_name', 'display_name', 'service_name', 'process_name', 
         'width', 'height', 'refresh_rate', 'volume', 'volume_level', 'seconds', 'message'
     ];
     return variablesWithOptions.includes(variableName);

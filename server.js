@@ -207,9 +207,9 @@ const scriptActions = [
     {
         name: "Set Specific Display Resolution",
         category: "Display",
-        command: `if exist "{TOOLS_PATH}\\MultiMonitorTool.exe" ("{TOOLS_PATH}\\MultiMonitorTool.exe" /SetDisplayMode "{device_id}" {width} {height} {refresh_rate}) else (echo MultiMonitorTool not found in Tools folder)`,
+        command: `if exist "{TOOLS_PATH}\\MultiMonitorTool.exe" ("{TOOLS_PATH}\\MultiMonitorTool.exe" /SetDisplayMode "{display_name}" {width} {height} {refresh_rate}) else (echo MultiMonitorTool not found in Tools folder)`,
         description: "Set resolution and refresh rate for a specific display",
-        variables: ["device_id", "width", "height", "refresh_rate"]
+        variables: ["display_name", "width", "height", "refresh_rate"]
     },
     {
         name: "Extend Desktop to All Displays",
@@ -242,23 +242,23 @@ const scriptActions = [
     {
         name: "Enable Specific Display",
         category: "Display",
-        command: `if exist "{TOOLS_PATH}\\MultiMonitorTool.exe" ("{TOOLS_PATH}\\MultiMonitorTool.exe" /enable "{device_id}") else (echo MultiMonitorTool not found in Tools folder)`,
+        command: `if exist "{TOOLS_PATH}\\MultiMonitorTool.exe" ("{TOOLS_PATH}\\MultiMonitorTool.exe" /enable "{display_name}") else (echo MultiMonitorTool not found in Tools folder)`,
         description: "Enable a specific display using MultiMonitorTool",
-        variables: ["device_id"]
+        variables: ["display_name"]
     },
     {
         name: "Disable Specific Display",
         category: "Display",
-        command: `if exist "{TOOLS_PATH}\\MultiMonitorTool.exe" ("{TOOLS_PATH}\\MultiMonitorTool.exe" /disable "{device_id}") else (echo MultiMonitorTool not found in Tools folder)`,
+        command: `if exist "{TOOLS_PATH}\\MultiMonitorTool.exe" ("{TOOLS_PATH}\\MultiMonitorTool.exe" /disable "{display_name}") else (echo MultiMonitorTool not found in Tools folder)`,
         description: "Disable a specific display using MultiMonitorTool",
-        variables: ["device_id"]
+        variables: ["display_name"]
     },
     {
         name: "Set Display Primary",
         category: "Display",
-        command: `if exist "{TOOLS_PATH}\\MultiMonitorTool.exe" ("{TOOLS_PATH}\\MultiMonitorTool.exe" /SetPrimary "{device_id}") else (echo MultiMonitorTool not found in Tools folder)`,
+        command: `if exist "{TOOLS_PATH}\\MultiMonitorTool.exe" ("{TOOLS_PATH}\\MultiMonitorTool.exe" /SetPrimary "{display_name}") else (echo MultiMonitorTool not found in Tools folder)`,
         description: "Set a specific display as the primary display",
-        variables: ["device_id"]
+        variables: ["display_name"]
     },
     {
         name: "Turn Off All Displays",
@@ -582,6 +582,69 @@ app.get('/api/variable-options/:variableName', async (req, res) => {
                 
                 if (options.length === 0) {
                     options = [{ value: '{default-display-id}', label: 'Primary Display - Unknown' }];
+                }
+                break;
+
+            case 'display_name':
+                // Get Short Monitor IDs by parsing MultiMonitorTool output for stable identification
+                try {
+                    const mmtResult = await executeTool('MultiMonitorTool.exe /stext nul');
+                    const mmtOutput = mmtResult.stdout || '';
+                    
+                    // Parse MultiMonitorTool output to extract Short Monitor IDs and map to displays
+                    const displayMapping = new Map();
+                    const blocks = mmtOutput.split('==================================================');
+                    
+                    blocks.forEach(block => {
+                        const nameMatch = block.match(/Name\s*:\s*(.+)/);
+                        const shortIdMatch = block.match(/Short Monitor ID\s*:\s*(.+)/);
+                        const monitorNameMatch = block.match(/Monitor Name\s*:\s*(.+)/);
+                        
+                        if (nameMatch && shortIdMatch) {
+                            const displayName = nameMatch[1].trim();
+                            const shortId = shortIdMatch[1].trim();
+                            const monitorName = monitorNameMatch ? monitorNameMatch[1].trim() : '';
+                            
+                            displayMapping.set(displayName, {
+                                shortId: shortId,
+                                monitorName: monitorName
+                            });
+                        }
+                    });
+                    
+                    // Get display info and match with Short Monitor IDs
+                    const displayNameResults = await getEnhancedMonitorInfo();
+                    
+                    displayNameResults.forEach(display => {
+                        const mapping = displayMapping.get(display.name);
+                        if (mapping) {
+                            options.push({
+                                value: mapping.shortId,
+                                label: `${display.displayName} (${mapping.shortId}) - ${display.resolution}${display.isPrimary ? ' *Primary*' : ''} - ${mapping.monitorName}`
+                            });
+                        } else {
+                            // Fallback if mapping not found
+                            options.push({
+                                value: display.name,
+                                label: `${display.displayName} (${display.name}) - ${display.resolution}${display.isPrimary ? ' *Primary*' : ''}`
+                            });
+                        }
+                    });
+                    
+                } catch (error) {
+                    console.error('Failed to get MultiMonitorTool data for display names:', error);
+                    // Fallback to basic display names
+                    const displayNameResults = await getEnhancedMonitorInfo();
+                    displayNameResults.forEach(display => {
+                        options.push({
+                            value: display.name,
+                            label: `${display.displayName} (${display.name}) - ${display.resolution}${display.isPrimary ? ' *Primary*' : ''}`
+                        });
+                    });
+                }
+                
+                if (options.length === 0) {
+                    options = [{ value: 'AOC2401', label: 'Primary Display' }];
                 }
                 break;
                 
@@ -1020,9 +1083,9 @@ app.get('/api/export/preview', (req, res) => {
         let toolsPath = path.join(__dirname, 'Tools');
         // Convert WSL path to Windows path (e.g., /mnt/c/Users... -> C:\Users...)
         if (toolsPath.startsWith('/mnt/')) {
-            toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, '$1:\\\\').replace(/\//g, '\\\\');
+            toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, '$1:\\').replace(/\//g, '\\');
         } else {
-            toolsPath = toolsPath.replace(/\//g, '\\\\');
+            toolsPath = toolsPath.replace(/\//g, '\\');
         }
         result = result.replace(/{TOOLS_PATH}/g, toolsPath);
         
@@ -1075,9 +1138,9 @@ app.post('/api/export/bat', async (req, res) => {
             let toolsPath = path.join(__dirname, 'Tools');
             // Convert WSL path to Windows path (e.g., /mnt/c/Users... -> C:\Users...)
             if (toolsPath.startsWith('/mnt/')) {
-                toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, '$1:\\\\').replace(/\//g, '\\\\');
+                toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, '$1:\\').replace(/\//g, '\\');
             } else {
-                toolsPath = toolsPath.replace(/\//g, '\\\\');
+                toolsPath = toolsPath.replace(/\//g, '\\');
             }
             result = result.replace(/{TOOLS_PATH}/g, toolsPath);
             
@@ -1144,9 +1207,9 @@ app.get('/api/export/json', (req, res) => {
         let toolsPath = path.join(__dirname, 'Tools');
         // Convert WSL path to Windows path (e.g., /mnt/c/Users... -> C:\Users...)
         if (toolsPath.startsWith('/mnt/')) {
-            toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, '$1:\\\\').replace(/\//g, '\\\\');
+            toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, '$1:\\').replace(/\//g, '\\');
         } else {
-            toolsPath = toolsPath.replace(/\//g, '\\\\');
+            toolsPath = toolsPath.replace(/\//g, '\\');
         }
         result = result.replace(/{TOOLS_PATH}/g, toolsPath);
         
