@@ -1,0 +1,6 @@
+
+> sunshine-script-builder-web@1.0.0 start
+> node server.js
+
+Sunshine Script Builder Web running at http://localhost:3000
+Open your browser and navigate to the URL above to use the application.

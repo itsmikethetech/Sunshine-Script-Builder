@@ -1,0 +1,110 @@
+
+> sunshine-script-builder-web@1.0.0 start
+> node server.js
+
+Sunshine Script Builder Web running at http://localhost:3000
+Open your browser and navigate to the URL above to use the application.
+Audio PowerShell result: {
+  stdout: '1|LG ULTRAGEAR (NVIDIA High Definition Audio)|False|{0.0.0.00000000}.{336d5fab-93c7-4604-8ecc-35421228a322}\r\n' +
+    '2|Speakers (Steam Streaming Speakers)|False|{0.0.0.00000000}.{3de18156-bc49-4892-8f8f-12fe94e2392e}\r\n' +
+    '3|Speakers (High Definition Audio Device)|True|{0.0.0.00000000}.{459db12c-f008-4671-bb3a-14de0baf2ba6}\r\n' +
+    '4|Speakers (Virtual Audio Driver by MTT)|False|{0.0.0.00000000}.{70141510-1c71-4b50-86a3-c4118b703f63}\r\n' +
+    '5|Headphones (2- Shure MVX2U)|False|{0.0.0.00000000}.{cfff7096-63f8-4354-99e7-b565993831a8}\r\n' +
+    '6|24G1WG3- (NVIDIA High Definition Audio)|False|{0.0.0.00000000}.{d507a953-e678-45ea-b429-5a143ae6627b}\r\n' +
+    '7|Speakers (Logitech PRO X Wireless Gaming Headset)|False|{0.0.0.00000000}.{e7d8df80-c73a-4e07-89b6-10a034c97355}\r\n' +
+    '8|MOTIV Mix Virtual Input (Shure Virtual Audio)|False|{0.0.0.00000000}.{e96f124d-a7fa-4208-bbc1-c1ab314dd9b9}\r\n',
+  stderr: ''
+}
+Audio lines: [
+  '1|LG ULTRAGEAR (NVIDIA High Definition Audio)|False|{0.0.0.00000000}.{336d5fab-93c7-4604-8ecc-35421228a322}\r',
+  '2|Speakers (Steam Streaming Speakers)|False|{0.0.0.00000000}.{3de18156-bc49-4892-8f8f-12fe94e2392e}\r',
+  '3|Speakers (High Definition Audio Device)|True|{0.0.0.00000000}.{459db12c-f008-4671-bb3a-14de0baf2ba6}\r',
+  '4|Speakers (Virtual Audio Driver by MTT)|False|{0.0.0.00000000}.{70141510-1c71-4b50-86a3-c4118b703f63}\r',
+  '5|Headphones (2- Shure MVX2U)|False|{0.0.0.00000000}.{cfff7096-63f8-4354-99e7-b565993831a8}\r',
+  '6|24G1WG3- (NVIDIA High Definition Audio)|False|{0.0.0.00000000}.{d507a953-e678-45ea-b429-5a143ae6627b}\r',
+  '7|Speakers (Logitech PRO X Wireless Gaming Headset)|False|{0.0.0.00000000}.{e7d8df80-c73a-4e07-89b6-10a034c97355}\r',
+  '8|MOTIV Mix Virtual Input (Shure Virtual Audio)|False|{0.0.0.00000000}.{e96f124d-a7fa-4208-bbc1-c1ab314dd9b9}\r',
+  ''
+]
+Audio parts: [
+  '1',
+  'LG ULTRAGEAR (NVIDIA High Definition Audio)',
+  'False',
+  '{0.0.0.00000000}.{336d5fab-93c7-4604-8ecc-35421228a322}'
+]
+Audio parts: [
+  '2',
+  'Speakers (Steam Streaming Speakers)',
+  'False',
+  '{0.0.0.00000000}.{3de18156-bc49-4892-8f8f-12fe94e2392e}'
+]
+Audio parts: [
+  '3',
+  'Speakers (High Definition Audio Device)',
+  'True',
+  '{0.0.0.00000000}.{459db12c-f008-4671-bb3a-14de0baf2ba6}'
+]
+Audio parts: [
+  '4',
+  'Speakers (Virtual Audio Driver by MTT)',
+  'False',
+  '{0.0.0.00000000}.{70141510-1c71-4b50-86a3-c4118b703f63}'
+]
+Audio parts: [
+  '5',
+  'Headphones (2- Shure MVX2U)',
+  'False',
+  '{0.0.0.00000000}.{cfff7096-63f8-4354-99e7-b565993831a8}'
+]
+Audio parts: [
+  '6',
+  '24G1WG3- (NVIDIA High Definition Audio)',
+  'False',
+  '{0.0.0.00000000}.{d507a953-e678-45ea-b429-5a143ae6627b}'
+]
+Audio parts: [
+  '7',
+  'Speakers (Logitech PRO X Wireless Gaming Headset)',
+  'False',
+  '{0.0.0.00000000}.{e7d8df80-c73a-4e07-89b6-10a034c97355}'
+]
+Audio parts: [
+  '8',
+  'MOTIV Mix Virtual Input (Shure Virtual Audio)',
+  'False',
+  '{0.0.0.00000000}.{e96f124d-a7fa-4208-bbc1-c1ab314dd9b9}'
+]
+Final audio options (8): [
+  {
+    value: '{0.0.0.00000000}.{336d5fab-93c7-4604-8ecc-35421228a322}',
+    label: 'LG ULTRAGEAR (NVIDIA High Definition Audio)'
+  },
+  {
+    value: '{0.0.0.00000000}.{3de18156-bc49-4892-8f8f-12fe94e2392e}',
+    label: 'Speakers (Steam Streaming Speakers)'
+  },
+  {
+    value: '{0.0.0.00000000}.{459db12c-f008-4671-bb3a-14de0baf2ba6}',
+    label: 'Speakers (High Definition Audio Device) *Default*'
+  },
+  {
+    value: '{0.0.0.00000000}.{70141510-1c71-4b50-86a3-c4118b703f63}',
+    label: 'Speakers (Virtual Audio Driver by MTT)'
+  },
+  {
+    value: '{0.0.0.00000000}.{cfff7096-63f8-4354-99e7-b565993831a8}',
+    label: 'Headphones (2- Shure MVX2U)'
+  },
+  {
+    value: '{0.0.0.00000000}.{d507a953-e678-45ea-b429-5a143ae6627b}',
+    label: '24G1WG3- (NVIDIA High Definition Audio)'
+  },
+  {
+    value: '{0.0.0.00000000}.{e7d8df80-c73a-4e07-89b6-10a034c97355}',
+    label: 'Speakers (Logitech PRO X Wireless Gaming Headset)'
+  },
+  {
+    value: '{0.0.0.00000000}.{e96f124d-a7fa-4208-bbc1-c1ab314dd9b9}',
+    label: 'MOTIV Mix Virtual Input (Shure Virtual Audio)'
+  }
+]

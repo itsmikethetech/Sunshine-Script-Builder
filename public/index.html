@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunshine Script Builder</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Header with Navigation -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-sun"></i> Sunshine Script Builder</h1>
+                
+                <!-- Navigation moved to header -->
+                <nav class="header-nav">
+                    <a href="#" class="nav-item active" data-tab="builder">
+                        <i class="fas fa-hammer"></i>
+                        <span>Script Builder</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="devices">
+                        <i class="fas fa-desktop"></i>
+                        <span>Devices</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="variables">
+                        <i class="fas fa-code"></i>
+                        <span>Variables</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="preview">
+                        <i class="fas fa-eye"></i>
+                        <span>Preview & Export</span>
+                    </a>
+                </nav>
+                
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="saveProject()">
+                        <i class="fas fa-save"></i> Save Project
+                    </button>
+                    <button class="btn btn-secondary" onclick="newProject()">
+                        <i class="fas fa-file"></i> New Project
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Content Area - now full width -->
+            <main class="content">
+                <!-- Script Builder Tab -->
+                <div id="builder-tab" class="tab-content active">
+                    <div class="tab-header">
+                        <h2>Script Builder</h2>
+                        <p>Create scripts that run before and after your games start</p>
+                    </div>
+
+                    <!-- Two-column layout: Script Builder (left) + Scripts Preview (right) -->
+                    <div class="builder-layout">
+                        <!-- Left Column: Script Builder -->
+                        <div class="builder-column">
+                            <!-- Actions Library -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Available Actions</h3>
+                                    <div class="card-actions">
+                                        <select id="category-filter" onchange="filterActions()">
+                                            <option value="All">All Categories</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="actions-grid" id="actions-grid">
+                                        <!-- Actions will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Scripts Preview -->
+                        <div class="scripts-column">
+                            <!-- Project Name -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Project Settings</h3>
+                                </div>
+                                <div class="card-content">
+                                    <div class="form-group">
+                                        <label for="project-name">Project Name</label>
+                                        <input type="text" id="project-name" placeholder="Enter project name..." onchange="updateProjectName()">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Before Scripts -->
+                            <div class="card script-card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-play"></i> Before Scripts (Do)</h3>
+                                    <span class="script-count" id="before-count">0 actions</span>
+                                </div>
+                                <div class="card-content">
+                                    <div class="script-list" id="before-scripts">
+                                        <div class="empty-state">
+                                            <i class="fas fa-plus-circle"></i>
+                                            <p>No actions added yet</p>
+                                            <small>Add actions from the library on the left</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- After Scripts -->
+                            <div class="card script-card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-stop"></i> After Scripts (Undo)</h3>
+                                    <span class="script-count" id="after-count">0 actions</span>
+                                </div>
+                                <div class="card-content">
+                                    <div class="script-list" id="after-scripts">
+                                        <div class="empty-state">
+                                            <i class="fas fa-plus-circle"></i>
+                                            <p>No actions added yet</p>
+                                            <small>Add actions from the library on the left</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Devices Tab -->
+                <div id="devices-tab" class="tab-content">
+                    <div class="tab-header">
+                        <h2>Device Management</h2>
+                        <p>Manage displays and audio devices for your scripts</p>
+                    </div>
+
+                    <div class="devices-container">
+                        <!-- Displays -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-desktop"></i> Display Devices</h3>
+                                <button class="btn btn-primary" onclick="refreshDisplays()">
+                                    <i class="fas fa-sync"></i> Refresh
+                                </button>
+                            </div>
+                            <div class="card-content">
+                                <div class="device-list" id="displays-list">
+                                    <div class="loading-state">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <p>Loading displays...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Audio Devices -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-volume-up"></i> Audio Devices</h3>
+                                <button class="btn btn-primary" onclick="refreshAudioDevices()">
+                                    <i class="fas fa-sync"></i> Refresh
+                                </button>
+                            </div>
+                            <div class="card-content">
+                                <div class="device-list" id="audio-list">
+                                    <div class="loading-state">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <p>Loading audio devices...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Variables Tab -->
+                <div id="variables-tab" class="tab-content">
+                    <div class="tab-header">
+                        <h2>Variables</h2>
+                        <p>Manage project variables and reference Sunshine environment variables</p>
+                    </div>
+
+                    <!-- Project Variables -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Project Variables</h3>
+                            <button class="btn btn-primary" onclick="showAddVariableDialog()">
+                                <i class="fas fa-plus"></i> Add Variable
+                            </button>
+                        </div>
+                        <div class="card-content">
+                            <div class="variables-list" id="variables-list">
+                                <div class="empty-state">
+                                    <i class="fas fa-code"></i>
+                                    <p>No variables defined</p>
+                                    <small>Add variables to reuse values across scripts</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sunshine Variables -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Available Sunshine Variables</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="sunshine-vars">
+                                <div class="var-item">
+                                    <code>${SUNSHINE_CLIENT_WIDTH}</code>
+                                    <span>Client display width</span>
+                                </div>
+                                <div class="var-item">
+                                    <code>${SUNSHINE_CLIENT_HEIGHT}</code>
+                                    <span>Client display height</span>
+                                </div>
+                                <div class="var-item">
+                                    <code>${SUNSHINE_CLIENT_FPS}</code>
+                                    <span>Client target FPS</span>
+                                </div>
+                                <div class="var-item">
+                                    <code>${SUNSHINE_APP_NAME}</code>
+                                    <span>Current application name</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Tab -->
+                <div id="preview-tab" class="tab-content">
+                    <div class="tab-header">
+                        <h2>Preview & Export</h2>
+                        <p>Preview your scripts and export them for use with Sunshine</p>
+                    </div>
+
+                    <!-- Export Actions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Export Options</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="export-actions">
+                                <button class="btn btn-success" onclick="exportBatFiles()">
+                                    <i class="fas fa-download"></i> Export BAT Files
+                                </button>
+                                <button class="btn btn-info" onclick="exportJsonConfig()">
+                                    <i class="fas fa-file-code"></i> Export JSON Config
+                                </button>
+                                <button class="btn btn-secondary" onclick="refreshPreview()">
+                                    <i class="fas fa-sync"></i> Refresh Preview
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Content -->
+                    <div class="preview-container">
+                        <!-- Before Script Preview -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Before Script Preview</h3>
+                            </div>
+                            <div class="card-content">
+                                <pre class="code-preview" id="before-preview">No before scripts defined</pre>
+                            </div>
+                        </div>
+
+                        <!-- After Script Preview -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>After Script Preview</h3>
+                            </div>
+                            <div class="card-content">
+                                <pre class="code-preview" id="after-preview">No after scripts defined</pre>
+                            </div>
+                        </div>
+
+                        <!-- JSON Config Preview -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Sunshine JSON Configuration</h3>
+                            </div>
+                            <div class="card-content">
+                                <pre class="code-preview" id="json-preview">{}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Action Configuration Modal -->
+    <div id="action-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Configure Action</h3>
+                <button class="modal-close" onclick="closeModal('action-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-variables">
+                    <!-- Variables will be populated here -->
+                </div>
+                <div class="sunshine-variables-section">
+                    <label>Quick Add Sunshine Variables:</label>
+                    <div class="sunshine-var-picker">
+                        <button type="button" class="sunshine-var-btn" onclick="insertSunshineVariable('${SUNSHINE_CLIENT_WIDTH}')">
+                            Client Width
+                        </button>
+                        <button type="button" class="sunshine-var-btn" onclick="insertSunshineVariable('${SUNSHINE_CLIENT_HEIGHT}')">
+                            Client Height
+                        </button>
+                        <button type="button" class="sunshine-var-btn" onclick="insertSunshineVariable('${SUNSHINE_CLIENT_FPS}')">
+                            Client FPS
+                        </button>
+                        <button type="button" class="sunshine-var-btn" onclick="insertSunshineVariable('${SUNSHINE_APP_NAME}')">
+                            App Name
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Add to:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="script-type" value="before" checked>
+                            <span>Before Script (Do)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="script-type" value="after">
+                            <span>After Script (Undo)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('action-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addActionToScript()">Add Action</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Variable Modal -->
+    <div id="variable-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Variable</h3>
+                <button class="modal-close" onclick="closeModal('variable-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="var-name">Variable Name</label>
+                    <input type="text" id="var-name" placeholder="Enter variable name...">
+                </div>
+                <div class="form-group">
+                    <label for="var-value">Value</label>
+                    <input type="text" id="var-value" placeholder="Enter value...">
+                </div>
+                <div class="form-group">
+                    <label for="var-description">Description (optional)</label>
+                    <input type="text" id="var-description" placeholder="Enter description...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('variable-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addVariable()">Add Variable</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Action Modal -->
+    <div id="device-action-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="device-modal-title">Add Device Action</h3>
+                <button class="modal-close" onclick="closeModal('device-action-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Action Type:</label>
+                    <select id="device-action-type">
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+                <div id="device-additional-vars">
+                    <!-- Additional variables will be populated here -->
+                </div>
+                <div class="sunshine-variables-section">
+                    <label>Quick Add Sunshine Variables:</label>
+                    <div class="sunshine-var-picker">
+                        <button type="button" class="sunshine-var-btn" onclick="insertSunshineVariableToDevice('${SUNSHINE_CLIENT_WIDTH}')">
+                            Client Width
+                        </button>
+                        <button type="button" class="sunshine-var-btn" onclick="insertSunshineVariableToDevice('${SUNSHINE_CLIENT_HEIGHT}')">
+                            Client Height
+                        </button>
+                        <button type="button" class="sunshine-var-btn" onclick="insertSunshineVariableToDevice('${SUNSHINE_CLIENT_FPS}')">
+                            Client FPS
+                        </button>
+                        <button type="button" class="sunshine-var-btn" onclick="insertSunshineVariableToDevice('${SUNSHINE_APP_NAME}')">
+                            App Name
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Add to:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="device-script-type" value="before" checked>
+                            <span>Before Script (Do)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="device-script-type" value="after">
+                            <span>After Script (Undo)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('device-action-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addDeviceAction()">Add Action</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
