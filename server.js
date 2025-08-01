@@ -1243,39 +1243,29 @@ echo After script completed.
 });
 
 app.get('/api/export/json', (req, res) => {
-    const replaceVariables = (command, variables) => {
-        let result = command;
-        
-        // Replace TOOLS_PATH placeholder with absolute Windows path to Tools folder
-        let toolsPath = path.join(__dirname, 'Tools');
-        // Convert WSL path to Windows path (e.g., /mnt/l/Users... -> L:\Users...)
-        if (toolsPath.startsWith('/mnt/')) {
-            toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, (match, drive) => `${drive.toUpperCase()}:\\`).replace(/\//g, '\\');
-        } else {
-            toolsPath = toolsPath.replace(/\//g, '\\');
-        }
-        result = result.replace(/{TOOLS_PATH}/g, toolsPath);
-        
-        // Replace user variables
-        Object.entries(variables).forEach(([key, value]) => {
-            result = result.replace(new RegExp(`{${key}}`, 'g'), value.value || value);
-        });
-        return result;
-    };
-
-    const beforeScript = projectData.beforeScripts.map(script => 
-        replaceVariables(script.command, { ...projectData.variables, ...script.variables })
-    ).join('\n');
-
-    const afterScript = projectData.afterScripts.map(script => 
-        replaceVariables(script.command, { ...projectData.variables, ...script.variables })
-    ).join('\n');
-
+    const projectName = projectData.name || 'project';
+    
+    // Convert Commands directory path to Windows format
+    let commandsPath = path.join(__dirname, 'Commands');
+    if (commandsPath.startsWith('/mnt/')) {
+        commandsPath = commandsPath.replace(/^\/mnt\/([a-z])\//, (match, drive) => `${drive.toUpperCase()}:\\`).replace(/\//g, '\\');
+    } else {
+        commandsPath = commandsPath.replace(/\//g, '\\');
+    }
+    
+    // Generate BAT file paths for Sunshine
+    const beforeBatPath = projectData.beforeScripts.length > 0 
+        ? `"${commandsPath}\\${projectName}_before.bat"` 
+        : '';
+    const afterBatPath = projectData.afterScripts.length > 0 
+        ? `"${commandsPath}\\${projectName}_after.bat"` 
+        : '';
+    
     const jsonConfig = {
         name: projectData.name,
         prep: {
-            do: beforeScript || '',
-            undo: afterScript || ''
+            do: beforeBatPath,
+            undo: afterBatPath
         }
     };
 
