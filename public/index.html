@@ -12,7 +12,10 @@
         <!-- Header with Navigation -->
         <header class="header">
             <div class="header-content">
-                <h1><i class="fas fa-sun"></i> Sunshine Script Builder</h1>
+                <div class="logo-section">
+                    <h1><i class="fas fa-sun"></i> Sunshine Script Builder</h1>
+                    <p class="logo-subtitle">by MikeTheTech / PyroSoft Productions</p>
+                </div>
                 
                 <!-- Navigation moved to header -->
                 <nav class="header-nav">
@@ -35,6 +38,10 @@
                 </nav>
                 
                 <div class="header-actions">
+                    <button id="theme-toggle" class="btn btn-secondary" onclick="toggleTheme()">
+                        <i class="fas fa-moon" id="theme-icon"></i>
+                        <span id="theme-text">Dark Mode</span>
+                    </button>
                     <button class="btn btn-primary" onclick="saveProject()">
                         <i class="fas fa-save"></i> Save Project
                     </button>
@@ -122,6 +129,24 @@
                                             <i class="fas fa-plus-circle"></i>
                                             <p>No actions added yet</p>
                                             <small>Add actions from the library on the left</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tools/Dependencies Status -->
+                            <div class="card tools-card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-tools"></i> Tools & Dependencies</h3>
+                                    <button class="btn btn-secondary" onclick="refreshToolStatus()">
+                                        <i class="fas fa-sync"></i> Refresh
+                                    </button>
+                                </div>
+                                <div class="card-content">
+                                    <div class="tools-status" id="tools-status">
+                                        <div class="loading-state">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                            <p>Checking tool availability...</p>
                                         </div>
                                     </div>
                                 </div>
@@ -245,7 +270,7 @@
                         <div class="card-content">
                             <div class="export-actions">
                                 <button class="btn btn-success" onclick="exportBatFiles()">
-                                    <i class="fas fa-download"></i> Export BAT Files
+                                    <i class="fas fa-save"></i> Save BAT Files
                                 </button>
                                 <button class="btn btn-info" onclick="exportJsonConfig()">
                                     <i class="fas fa-file-code"></i> Export JSON Config

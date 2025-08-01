@@ -12,8 +12,69 @@ let availableAudioDevices = [];
 let currentActionForModal = null;
 let currentDeviceForModal = null;
 
+// Theme management
+function initializeTheme() {
+    // Check for saved theme preference or default to system preference
+    const savedTheme = localStorage.getItem('theme');
+    let currentTheme;
+    
+    if (savedTheme) {
+        currentTheme = savedTheme;
+    } else {
+        // Check system preference
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        currentTheme = systemPrefersDark ? 'dark' : 'light';
+    }
+    
+    applyTheme(currentTheme);
+    updateThemeToggle(currentTheme);
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) {
+            // Only update if user hasn't manually set a preference
+            const newTheme = e.matches ? 'dark' : 'light';
+            applyTheme(newTheme);
+            updateThemeToggle(newTheme);
+        }
+    });
+}
+
+function applyTheme(theme) {
+    if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+        document.documentElement.removeAttribute('data-theme');
+    }
+}
+
+function updateThemeToggle(currentTheme) {
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = document.getElementById('theme-text');
+    
+    if (currentTheme === 'dark') {
+        themeIcon.className = 'fas fa-sun';
+        themeText.textContent = 'Light Mode';
+    } else {
+        themeIcon.className = 'fas fa-moon';
+        themeText.textContent = 'Dark Mode';
+    }
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    applyTheme(newTheme);
+    updateThemeToggle(newTheme);
+    
+    // Save preference
+    localStorage.setItem('theme', newTheme);
+}
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
+    initializeTheme();
     initializeApp();
 });
 
@@ -22,6 +83,7 @@ async function initializeApp() {
     await loadActions();
     await loadProject();
     await loadDevices();
+    await loadToolStatus();
     
     setupEventListeners();
     updateUI();
@@ -50,6 +112,33 @@ function setupEventListeners() {
                 closeModal(this.id);
             }
         });
+    });
+    
+    // Event delegation for script action buttons and variable buttons
+    document.addEventListener('click', function(e) {
+        const button = e.target.closest('button[data-action]');
+        if (!button) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const action = button.dataset.action;
+        
+        if (action === 'move') {
+            const type = button.dataset.type;
+            const index = parseInt(button.dataset.index);
+            const direction = button.dataset.direction;
+            moveScript(type, index, direction);
+        } else if (action === 'remove') {
+            const type = button.dataset.type;
+            const index = parseInt(button.dataset.index);
+            removeScript(type, index);
+        } else if (action === 'remove-variable') {
+            const name = button.dataset.name;
+            removeVariable(name);
+        } else if (action === 'close-notification') {
+            button.parentElement.remove();
+        }
     });
 }
 
@@ -103,8 +192,8 @@ async function hasVariableOptions(variableName) {
     // Variables that have predefined options
     const variablesWithOptions = [
         'device_id', 'device_name', 'audio_device_id', 'display_device_id',
-        'service_name', 'process_name', 'width', 'height', 'refresh_rate', 
-        'volume', 'volume_level', 'seconds', 'message'
+        'audio_device_name', 'service_name', 'process_name', 
+        'width', 'height', 'refresh_rate', 'volume', 'volume_level', 'seconds', 'message'
     ];
     return variablesWithOptions.includes(variableName);
 }
@@ -238,8 +327,21 @@ async function loadCategories() {
             option.textContent = category;
             select.appendChild(option);
         });
+        
+        // Set default selection to "All"
+        select.value = 'All';
     } catch (error) {
         console.error('Failed to load categories:', error);
+        // Add fallback categories if the API fails
+        const select = document.getElementById('category-filter');
+        select.innerHTML = `
+            <option value="All">All Categories</option>
+            <option value="Audio">Audio</option>
+            <option value="Display">Display</option>
+            <option value="Process">Process</option>
+            <option value="Service">Service</option>
+            <option value="System">System</option>
+        `;
     }
 }
 
@@ -250,6 +352,15 @@ async function loadActions(category = 'All') {
         renderActions(actions);
     } catch (error) {
         console.error('Failed to load actions:', error);
+        // Show fallback message if actions fail to load
+        const container = document.getElementById('actions-grid');
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Failed to load actions</p>
+                <small>Check console for details: ${error.message}</small>
+            </div>
+        `;
     }
 }
 
@@ -257,16 +368,33 @@ function renderActions(actions) {
     const container = document.getElementById('actions-grid');
     container.innerHTML = '';
     
+    if (actions.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-search"></i>
+                <p>No actions found</p>
+                <small>Try a different category filter</small>
+            </div>
+        `;
+        return;
+    }
+    
     actions.forEach(action => {
         const actionElement = document.createElement('div');
         actionElement.className = 'action-item';
-        actionElement.onclick = () => showActionModal(action);
         
         actionElement.innerHTML = `
             <div class="action-category">${action.category}</div>
             <h4>${action.name}</h4>
             <p>${action.description}</p>
         `;
+        
+        // Use addEventListener instead of onclick for better extension compatibility
+        actionElement.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            showActionModal(action);
+        });
         
         container.appendChild(actionElement);
     });
@@ -296,7 +424,18 @@ async function saveProject() {
             method: 'POST',
             body: JSON.stringify(currentProject)
         });
-        showNotification('Project saved successfully!', 'success');
+        
+        // Automatically save BAT files when project is saved
+        if (currentProject.beforeScripts.length > 0 || currentProject.afterScripts.length > 0) {
+            const batSaved = await exportBatFiles(false); // Don't show BAT notifications
+            if (batSaved) {
+                showNotification('Project and BAT files saved successfully!', 'success');
+            } else {
+                showNotification('Project saved, but failed to save BAT files', 'warning');
+            }
+        } else {
+            showNotification('Project saved successfully!', 'success');
+        }
     } catch (error) {
         console.error('Failed to save project:', error);
         showNotification('Failed to save project', 'error');
@@ -525,13 +664,13 @@ function updateScriptList(type, scripts) {
                 ${variablesDisplay}
             </div>
             <div class="script-actions">
-                <button onclick="moveScript('${type}', ${index}, 'up')" title="Move up">
+                <button data-action="move" data-direction="up" data-type="${type}" data-index="${index}" title="Move up">
                     <i class="fas fa-arrow-up"></i>
                 </button>
-                <button onclick="moveScript('${type}', ${index}, 'down')" title="Move down">
+                <button data-action="move" data-direction="down" data-type="${type}" data-index="${index}" title="Move down">
                     <i class="fas fa-arrow-down"></i>
                 </button>
-                <button onclick="removeScript('${type}', ${index})" title="Remove">
+                <button data-action="remove" data-type="${type}" data-index="${index}" title="Remove">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -614,7 +753,11 @@ function renderDisplays(displays) {
     displays.forEach(display => {
         const displayElement = document.createElement('div');
         displayElement.className = 'device-item';
-        displayElement.onclick = () => showDeviceActionModal('display', display);
+        displayElement.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            showDeviceActionModal('display', display);
+        });
         
         displayElement.innerHTML = `
             <div class="device-info">
@@ -645,7 +788,11 @@ function renderAudioDevices(devices) {
     devices.forEach(device => {
         const deviceElement = document.createElement('div');
         deviceElement.className = 'device-item';
-        deviceElement.onclick = () => showDeviceActionModal('audio', device);
+        deviceElement.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            showDeviceActionModal('audio', device);
+        });
         
         deviceElement.innerHTML = `
             <div class="device-info">
@@ -960,7 +1107,7 @@ function updateVariablesList() {
             </div>
             <div class="variable-actions">
                 <span class="variable-value">${data.value}</span>
-                <button class="btn btn-danger btn-small" onclick="removeVariable('${name}')">
+                <button class="btn btn-danger btn-small" data-action="remove-variable" data-name="${name}">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -986,30 +1133,41 @@ async function refreshPreview() {
     }
 }
 
-async function exportBatFiles() {
+async function exportBatFiles(showNotifications = true) {
     try {
-        // Export both before and after scripts
-        if (currentProject.beforeScripts.length > 0) {
-            const beforeResponse = await fetch('/api/export/bat/before');
-            const beforeBlob = await beforeResponse.blob();
-            downloadBlob(beforeBlob, `${currentProject.name || 'project'}_before.bat`);
-        }
-        
-        if (currentProject.afterScripts.length > 0) {
-            const afterResponse = await fetch('/api/export/bat/after');
-            const afterBlob = await afterResponse.blob();
-            downloadBlob(afterBlob, `${currentProject.name || 'project'}_after.bat`);
-        }
-        
         if (currentProject.beforeScripts.length === 0 && currentProject.afterScripts.length === 0) {
-            showNotification('No scripts to export', 'warning');
-            return;
+            if (showNotifications) {
+                showNotification('No scripts to save', 'warning');
+            }
+            return false;
         }
+
+        const response = await fetch('/api/export/bat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
         
-        showNotification('BAT files exported successfully!', 'success');
+        if (result.success) {
+            if (showNotifications) {
+                showNotification(`${result.message}: ${result.files.join(', ')}`, 'success');
+            }
+            return true;
+        } else {
+            if (showNotifications) {
+                showNotification(result.error || 'Failed to save BAT files', 'error');
+            }
+            return false;
+        }
     } catch (error) {
-        console.error('Failed to export BAT files:', error);
-        showNotification('Failed to export BAT files', 'error');
+        console.error('Failed to save BAT files:', error);
+        if (showNotifications) {
+            showNotification('Failed to save BAT files', 'error');
+        }
+        return false;
     }
 }
 
@@ -1044,7 +1202,7 @@ function showNotification(message, type = 'info') {
     notification.innerHTML = `
         <i class="fas fa-${getNotificationIcon(type)}"></i>
         <span>${message}</span>
-        <button onclick="this.parentElement.remove()">&times;</button>
+        <button class="notification-close" data-action="close-notification">&times;</button>
     `;
     
     // Add to page
@@ -1142,3 +1300,97 @@ const notificationStyles = `
 const style = document.createElement('style');
 style.textContent = notificationStyles;
 document.head.appendChild(style);
+
+// Tools Status Management
+async function loadToolStatus() {
+    try {
+        const statusData = await apiCall('/tools/status');
+        renderToolStatus(statusData);
+    } catch (error) {
+        console.error('Failed to load tool status:', error);
+        showToolStatusError();
+    }
+}
+
+async function refreshToolStatus() {
+    const button = event.target;
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+    button.disabled = true;
+    
+    await loadToolStatus();
+    
+    button.innerHTML = originalHTML;
+    button.disabled = false;
+    showNotification('Tool status refreshed!', 'info');
+}
+
+function renderToolStatus(statusData) {
+    const container = document.getElementById('tools-status');
+    const { summary, tools } = statusData;
+    
+    let statusHtml = `
+        <div class="tools-summary">
+            <div class="summary-item">
+                <span class="summary-label">Total Tools:</span>
+                <span class="summary-value">${summary.total}</span>
+            </div>
+            <div class="summary-item ${summary.available === summary.total ? 'success' : summary.available > 0 ? 'warning' : 'error'}">
+                <span class="summary-label">Available:</span>
+                <span class="summary-value">${summary.available}/${summary.total}</span>
+            </div>
+            ${summary.missing > 0 ? `
+            <div class="summary-item error">
+                <span class="summary-label">Missing:</span>
+                <span class="summary-value">${summary.missing}</span>
+            </div>
+            ` : ''}
+        </div>
+        <div class="tools-list">
+    `;
+    
+    tools.forEach(tool => {
+        const statusIcon = tool.available ? 
+            '<i class="fas fa-check-circle tool-available"></i>' : 
+            '<i class="fas fa-times-circle tool-missing"></i>';
+        
+        const sizeText = tool.available && tool.size ? 
+            ` (${formatFileSize(tool.size)})` : '';
+        
+        statusHtml += `
+            <div class="tool-item ${tool.available ? 'available' : 'missing'}">
+                <div class="tool-info">
+                    <div class="tool-header">
+                        ${statusIcon}
+                        <h4>${tool.name}</h4>
+                        <span class="tool-filename">${tool.filename}${sizeText}</span>
+                    </div>
+                    <p class="tool-description">${tool.description}</p>
+                    ${!tool.available ? '<small class="tool-missing-note">Place this file in the Tools/ folder to enable related functionality</small>' : ''}
+                </div>
+            </div>
+        `;
+    });
+    
+    statusHtml += '</div>';
+    container.innerHTML = statusHtml;
+}
+
+function showToolStatusError() {
+    const container = document.getElementById('tools-status');
+    container.innerHTML = `
+        <div class="empty-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Failed to check tool status</p>
+            <small>Could not verify tool availability</small>
+        </div>
+    `;
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}

@@ -156,36 +156,43 @@ const scriptActions = [
     {
         name: "Switch Audio Device",
         category: "Audio",
-        command: `powershell.exe -command "try { $device = Get-AudioDevice -List | Where-Object { $_.ID -eq '{audio_device_id}' }; if($device) { Set-AudioDevice -ID $device.ID } } catch { Write-Host 'AudioDeviceCmdlets not available, using alternative method'; $devices = Get-WmiObject -Class Win32_SoundDevice; $targetDevice = $devices | Where-Object { $_.DeviceID -eq '{audio_device_id}' }; if($targetDevice) { $targetDevice.SetAsDefault() } }"`,
-        description: "Switch to a specific audio output device",
-        variables: ["audio_device_id"]
+        command: `if exist "{TOOLS_PATH}\\nircmd.exe" ("{TOOLS_PATH}\\nircmd.exe" setdefaultsounddevice "{audio_device_name}") else (echo NirCmd not found in Tools folder)`,
+        description: "Switch to a specific audio output device using NirCmd",
+        variables: ["audio_device_name"]
     },
     {
         name: "Set System Volume",
         category: "Audio",
-        command: `powershell.exe -command "try { Set-AudioDevice -PlaybackVolume {volume} } catch { (New-Object -comObject VolumeControl.Application).Volume = {volume} }"`,
-        description: "Set system volume level (0-100%)",
-        variables: ["volume"]
+        command: `if exist "{TOOLS_PATH}\\nircmd.exe" ("{TOOLS_PATH}\\nircmd.exe" setsysvolume {volume_level}) else (echo NirCmd not found in Tools folder)`,
+        description: "Set system volume level (0-65535)",
+        variables: ["volume_level"]
     },
     {
-        name: "Switch Audio Device and Set Volume",
-        category: "Audio",
-        command: `powershell.exe -command "try { $device = Get-AudioDevice -List | Where-Object { $_.ID -eq '{audio_device_id}' }; if($device) { Set-AudioDevice -ID $device.ID -PlaybackVolume {volume} } } catch { Write-Host 'AudioDeviceCmdlets not available' }"`,
-        description: "Switch to specific audio device and set its volume",
-        variables: ["audio_device_id", "volume"]
+        name: "Set Volume Percentage",
+        category: "Audio", 
+        command: `if exist "{TOOLS_PATH}\\nircmd.exe" ("{TOOLS_PATH}\\nircmd.exe" changesysvolume {volume_change}) else (echo NirCmd not found in Tools folder)`,
+        description: "Change system volume by percentage (-65535 to +65535)",
+        variables: ["volume_change"]
     },
     {
         name: "Mute System Audio",
         category: "Audio",
-        command: `powershell.exe -command "try { Set-AudioDevice -PlaybackMute $true } catch { (New-Object -comObject VolumeControl.Application).Mute = $true }"`,
-        description: "Mute all system audio",
+        command: `if exist "{TOOLS_PATH}\\nircmd.exe" ("{TOOLS_PATH}\\nircmd.exe" mutesysvolume 1) else (echo NirCmd not found in Tools folder)`,
+        description: "Mute all system audio using NirCmd",
         variables: []
     },
     {
         name: "Unmute System Audio",
         category: "Audio",
-        command: `powershell.exe -command "try { Set-AudioDevice -PlaybackMute $false } catch { (New-Object -comObject VolumeControl.Application).Mute = $false }"`,
-        description: "Unmute system audio",
+        command: `if exist "{TOOLS_PATH}\\nircmd.exe" ("{TOOLS_PATH}\\nircmd.exe" mutesysvolume 0) else (echo NirCmd not found in Tools folder)`,
+        description: "Unmute system audio using NirCmd",
+        variables: []
+    },
+    {
+        name: "Toggle Audio Mute",
+        category: "Audio",
+        command: `if exist "{TOOLS_PATH}\\nircmd.exe" ("{TOOLS_PATH}\\nircmd.exe" mutesysvolume 2) else (echo NirCmd not found in Tools folder)`,
+        description: "Toggle system audio mute state using NirCmd",
         variables: []
     },
 
@@ -193,9 +200,16 @@ const scriptActions = [
     {
         name: "Change Primary Display Resolution",
         category: "Display",
-        command: `if exist "{TOOLS_PATH}\\qres.exe" ("{TOOLS_PATH}\\qres.exe" /x {width} /y {height}) else (echo QRes not found in Tools folder)`,
-        description: "Change primary display resolution (requires QRes tool)",
+        command: `if exist "{TOOLS_PATH}\\QRes.exe" ("{TOOLS_PATH}\\QRes.exe" /x {width} /y {height}) else (echo QRes not found in Tools folder)`,
+        description: "Change primary display resolution using QRes",
         variables: ["width", "height"]
+    },
+    {
+        name: "Set Specific Display Resolution",
+        category: "Display",
+        command: `if exist "{TOOLS_PATH}\\MultiMonitorTool.exe" ("{TOOLS_PATH}\\MultiMonitorTool.exe" /SetDisplayMode "{device_id}" {width} {height} {refresh_rate}) else (echo MultiMonitorTool not found in Tools folder)`,
+        description: "Set resolution and refresh rate for a specific display",
+        variables: ["device_id", "width", "height", "refresh_rate"]
     },
     {
         name: "Extend Desktop to All Displays",
@@ -205,8 +219,8 @@ const scriptActions = [
         variables: []
     },
     {
-        name: "Duplicate Display to All Monitors",
-        category: "Display", 
+        name: "Duplicate Display to All Monitors", 
+        category: "Display",
         command: `DisplaySwitch.exe /clone`,
         description: "Mirror primary display to all monitors",
         variables: []
@@ -228,16 +242,23 @@ const scriptActions = [
     {
         name: "Enable Specific Display",
         category: "Display",
-        command: `if exist "{TOOLS_PATH}\\MultiMonitorTool.exe" ("{TOOLS_PATH}\\MultiMonitorTool.exe" /enable {display_device_id}) else (echo MultiMonitorTool not found in Tools folder)`,
-        description: "Enable a specific display (requires MultiMonitorTool)",
-        variables: ["display_device_id"]
+        command: `if exist "{TOOLS_PATH}\\MultiMonitorTool.exe" ("{TOOLS_PATH}\\MultiMonitorTool.exe" /enable "{device_id}") else (echo MultiMonitorTool not found in Tools folder)`,
+        description: "Enable a specific display using MultiMonitorTool",
+        variables: ["device_id"]
     },
     {
         name: "Disable Specific Display",
         category: "Display",
-        command: `if exist "{TOOLS_PATH}\\MultiMonitorTool.exe" ("{TOOLS_PATH}\\MultiMonitorTool.exe" /disable {display_device_id}) else (echo MultiMonitorTool not found in Tools folder)`,
-        description: "Disable a specific display (requires MultiMonitorTool)",
-        variables: ["display_device_id"]
+        command: `if exist "{TOOLS_PATH}\\MultiMonitorTool.exe" ("{TOOLS_PATH}\\MultiMonitorTool.exe" /disable "{device_id}") else (echo MultiMonitorTool not found in Tools folder)`,
+        description: "Disable a specific display using MultiMonitorTool",
+        variables: ["device_id"]
+    },
+    {
+        name: "Set Display Primary",
+        category: "Display",
+        command: `if exist "{TOOLS_PATH}\\MultiMonitorTool.exe" ("{TOOLS_PATH}\\MultiMonitorTool.exe" /SetPrimary "{device_id}") else (echo MultiMonitorTool not found in Tools folder)`,
+        description: "Set a specific display as the primary display",
+        variables: ["device_id"]
     },
     {
         name: "Turn Off All Displays",
@@ -272,45 +293,80 @@ const scriptActions = [
     {
         name: "Launch Application",
         category: "Process",
-        command: `powershell.exe -command "Start-Process '{process_name}'"`,
-        description: "Launch an application or executable",
-        variables: ["process_name"]
+        command: `start "" "{process_path}"`,
+        description: "Launch an application by full path",
+        variables: ["process_path"]
     },
     {
-        name: "Close Application",
+        name: "Launch Application with Parameters",
         category: "Process",
-        command: `powershell.exe -command "Stop-Process -Name '{process_name}' -Force"`,
-        description: "Close a running application gracefully",
+        command: `start "" "{process_path}" {process_args}`,
+        description: "Launch an application with command line arguments",
+        variables: ["process_path", "process_args"]
+    },
+    {
+        name: "Close Application by Name",
+        category: "Process",
+        command: `taskkill /IM "{process_name}" /T`,
+        description: "Close a running application by process name",
         variables: ["process_name"]
     },
     {
         name: "Force Kill Application",
         category: "Process",
-        command: `taskkill /F /IM {process_name}`,
-        description: "Forcefully terminate an application",
+        command: `taskkill /F /IM "{process_name}" /T`,
+        description: "Forcefully terminate an application and child processes",
         variables: ["process_name"]
+    },
+    {
+        name: "Close Application by Window Title",
+        category: "Process",
+        command: `if exist "{TOOLS_PATH}\\nircmd.exe" ("{TOOLS_PATH}\\nircmd.exe" win close title "{window_title}") else (echo NirCmd not found in Tools folder)`,
+        description: "Close application by window title using NirCmd",
+        variables: ["window_title"]
+    },
+    {
+        name: "Minimize Application Window",
+        category: "Process",
+        command: `if exist "{TOOLS_PATH}\\nircmd.exe" ("{TOOLS_PATH}\\nircmd.exe" win min title "{window_title}") else (echo NirCmd not found in Tools folder)`,
+        description: "Minimize application window by title using NirCmd",
+        variables: ["window_title"]
     },
 
     // Service Actions
     {
         name: "Start Windows Service",
         category: "Service",
-        command: `powershell.exe -command "Start-Service -Name '{service_name}'"`,
-        description: "Start a Windows background service",
+        command: `net start "{service_name}"`,
+        description: "Start a Windows background service using net command",
         variables: ["service_name"]
     },
     {
         name: "Stop Windows Service",
         category: "Service",
-        command: `powershell.exe -command "Stop-Service -Name '{service_name}' -Force"`,
-        description: "Stop a Windows background service",
+        command: `net stop "{service_name}"`,
+        description: "Stop a Windows background service using net command",
         variables: ["service_name"]
     },
     {
         name: "Restart Windows Service",
         category: "Service",
-        command: `powershell.exe -command "Restart-Service -Name '{service_name}' -Force"`,
-        description: "Restart a Windows background service",
+        command: `net stop "{service_name}" && net start "{service_name}"`,
+        description: "Restart a Windows background service using net commands",
+        variables: ["service_name"]
+    },
+    {
+        name: "Start Service (SC Command)",
+        category: "Service",
+        command: `sc start "{service_name}"`,
+        description: "Start a Windows service using sc command",
+        variables: ["service_name"]
+    },
+    {
+        name: "Stop Service (SC Command)",
+        category: "Service",
+        command: `sc stop "{service_name}"`,
+        description: "Stop a Windows service using sc command",
         variables: ["service_name"]
     },
 
@@ -325,8 +381,8 @@ const scriptActions = [
     {
         name: "Show Popup Message",
         category: "System",
-        command: `powershell.exe -command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('{message}', 'Sunshine Script', 'OK', 'Information')"`,
-        description: "Display a popup message to the user",
+        command: `if exist "{TOOLS_PATH}\\nircmd.exe" ("{TOOLS_PATH}\\nircmd.exe" infobox "{message}" "Sunshine Script") else (msg * "{message}")`,
+        description: "Display a popup message to the user using NirCmd or msg",
         variables: ["message"]
     },
     {
@@ -344,6 +400,27 @@ const scriptActions = [
         variables: []
     },
     {
+        name: "Enable Power Saver Plan",
+        category: "System",
+        command: `powercfg /s a1841308-3541-4fab-bc81-f71556f20b4a`,
+        description: "Switch to Power Saver power plan",
+        variables: []
+    },
+    {
+        name: "Set Custom Power Plan",
+        category: "System",
+        command: `powercfg /s {power_plan_guid}`,
+        description: "Switch to a custom power plan by GUID",
+        variables: ["power_plan_guid"]
+    },
+    {
+        name: "Execute Registry Command",
+        category: "System",
+        command: `reg {reg_operation} "{reg_key}" {reg_options}`,
+        description: "Execute a registry command (add, delete, query, etc.)",
+        variables: ["reg_operation", "reg_key", "reg_options"]
+    },
+    {
         name: "Run Custom PowerShell Command",
         category: "System",
         command: `powershell.exe -command "{command}"`,
@@ -356,6 +433,13 @@ const scriptActions = [
         command: `{command}`,
         description: "Execute a custom Windows command",
         variables: ["command"]
+    },
+    {
+        name: "Beep Sound",
+        category: "System",
+        command: `if exist "{TOOLS_PATH}\\nircmd.exe" ("{TOOLS_PATH}\\nircmd.exe" beep {frequency} {duration}) else (echo @echo off & echo powershell -c "[console]::beep({frequency},{duration})" | cmd)`,
+        description: "Play a beep sound with specified frequency and duration",
+        variables: ["frequency", "duration"]
     }
 ];
 
@@ -485,6 +569,7 @@ app.get('/api/variable-options/:variableName', async (req, res) => {
     try {
         switch (variableName) {
             case 'display_device_id':
+            case 'device_id':
                 // Use enhanced monitor information
                 const displayResults = await getEnhancedMonitorInfo();
                 
@@ -636,6 +721,188 @@ app.get('/api/variable-options/:variableName', async (req, res) => {
                     { value: 'Start-Process "steam://launch/YOUR_GAME_ID"', label: 'Launch Steam Game by ID' },
                     { value: 'Set-ItemProperty -Path "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\GameDVR" -Name "AppCaptureEnabled" -Value 0', label: 'Disable Game DVR' }
                 ];
+                break;
+
+            case 'audio_device_name':
+                // Use audio-info.exe for audio device names
+                const audioNameResult = await executeTool('audio-info.exe');
+                
+                if (audioNameResult.stdout) {
+                    const lines = audioNameResult.stdout.split('\n');
+                    let currentDevice = {};
+                    
+                    for (const line of lines) {
+                        const trimmedLine = line.trim();
+                        
+                        if (trimmedLine.startsWith('Device name')) {
+                            currentDevice.name = trimmedLine.split(':')[1].trim();
+                        } else if (trimmedLine.startsWith('Device state')) {
+                            const state = trimmedLine.split(':')[1].trim();
+                            if (state === 'Active' && currentDevice.name) {
+                                const isDefault = options.length === 0;
+                                options.push({
+                                    value: currentDevice.name,
+                                    label: `${currentDevice.name}${isDefault ? ' *Default*' : ''}`
+                                });
+                            }
+                            currentDevice = {};
+                        }
+                    }
+                }
+                
+                if (options.length === 0) {
+                    options = [{ value: 'Default Audio Device', label: 'Default Audio Device' }];
+                }
+                break;
+
+
+            case 'volume_change':
+                options = [
+                    { value: '+5', label: 'Increase by 5%' },
+                    { value: '+10', label: 'Increase by 10%' },
+                    { value: '+25', label: 'Increase by 25%' },
+                    { value: '-5', label: 'Decrease by 5%' },
+                    { value: '-10', label: 'Decrease by 10%' },
+                    { value: '-25', label: 'Decrease by 25%' }
+                ];
+                break;
+
+            case 'process_path':
+                options = [
+                    { value: 'C:\\Program Files (x86)\\Steam\\steam.exe', label: 'Steam' },
+                    { value: 'C:\\Program Files\\Epic Games\\Launcher\\Portal\\Binaries\\Win64\\EpicGamesLauncher.exe', label: 'Epic Games Launcher' },
+                    { value: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', label: 'Google Chrome' },
+                    { value: 'C:\\Program Files\\Mozilla Firefox\\firefox.exe', label: 'Mozilla Firefox' },
+                    { value: 'C:\\Users\\%USERNAME%\\AppData\\Local\\Discord\\app-1.0.9037\\Discord.exe', label: 'Discord' },
+                    { value: 'C:\\Users\\%USERNAME%\\AppData\\Roaming\\Spotify\\Spotify.exe', label: 'Spotify' },
+                    { value: 'C:\\Program Files\\OBS Studio\\bin\\64bit\\obs64.exe', label: 'OBS Studio' },
+                    { value: 'notepad.exe', label: 'Notepad' },
+                    { value: 'calc.exe', label: 'Calculator' }
+                ];
+                break;
+
+            case 'process_args':
+                options = [
+                    { value: '-windowed', label: 'Windowed Mode' },
+                    { value: '-fullscreen', label: 'Fullscreen Mode' },
+                    { value: '-width ${SUNSHINE_CLIENT_WIDTH} -height ${SUNSHINE_CLIENT_HEIGHT}', label: 'Use Sunshine Resolution' },
+                    { value: '-nosound', label: 'No Sound' },
+                    { value: '-console', label: 'Show Console' },
+                    { value: '--minimized', label: 'Start Minimized' },
+                    { value: '--disable-gpu', label: 'Disable GPU' },
+                    { value: '', label: 'No Arguments' }
+                ];
+                break;
+
+            case 'window_title':
+                options = [
+                    { value: 'Steam', label: 'Steam Window' },
+                    { value: 'Discord', label: 'Discord Window' },
+                    { value: 'Google Chrome', label: 'Chrome Window' },
+                    { value: 'Mozilla Firefox', label: 'Firefox Window' },
+                    { value: 'OBS Studio', label: 'OBS Studio Window' },
+                    { value: 'Spotify', label: 'Spotify Window' },
+                    { value: 'Calculator', label: 'Calculator Window' },
+                    { value: 'Notepad', label: 'Notepad Window' },
+                    { value: '${SUNSHINE_APP_NAME}', label: 'Current Sunshine App' }
+                ];
+                break;
+
+            case 'power_plan_guid':
+                options = [
+                    { value: '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c', label: 'High Performance' },
+                    { value: '381b4222-f694-41f0-9685-ff5bb260df2e', label: 'Balanced' },
+                    { value: 'a1841308-3541-4fab-bc81-f71556f20b4a', label: 'Power Saver' },
+                    { value: 'e9a42b02-d5df-448d-aa00-03f14749eb61', label: 'Ultimate Performance' }
+                ];
+                break;
+
+            case 'reg_operation':
+                options = [
+                    { value: 'set', label: 'Set Registry Value' },
+                    { value: 'del', label: 'Delete Registry Key/Value' }
+                ];
+                break;
+
+            case 'reg_key':
+                options = [
+                    { value: 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\GameDVR', label: 'Game DVR Settings' },
+                    { value: 'HKCU\\Software\\Microsoft\\GameBar', label: 'Game Bar Settings' },
+                    { value: 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile', label: 'System Profile' },
+                    { value: 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced', label: 'Explorer Advanced' },
+                    { value: 'HKCU\\Control Panel\\Desktop', label: 'Desktop Settings' },
+                    { value: 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power', label: 'Power Management' }
+                ];
+                break;
+
+            case 'reg_options':
+                options = [
+                    { value: '/v AppCaptureEnabled /t REG_DWORD /d 0', label: 'Disable Game DVR' },
+                    { value: '/v GameDVR_Enabled /t REG_DWORD /d 0', label: 'Disable Game DVR Recording' },
+                    { value: '/v AllowGameDVR /t REG_DWORD /d 0', label: 'Disallow Game DVR' },
+                    { value: '/v ShowTaskViewButton /t REG_DWORD /d 0', label: 'Hide Task View Button' },
+                    { value: '/v TaskbarGlomLevel /t REG_DWORD /d 0', label: 'Never Combine Taskbar Buttons' },
+                    { value: '/v MenuDelay /t REG_SZ /d "0"', label: 'Remove Menu Delay' },
+                    { value: '/v PowerThrottlingOff /t REG_DWORD /d 1', label: 'Disable Power Throttling' }
+                ];
+                break;
+
+            case 'frequency':
+                options = [
+                    { value: '100', label: '100 Hz (Low)' },
+                    { value: '200', label: '200 Hz' },
+                    { value: '300', label: '300 Hz' },
+                    { value: '400', label: '400 Hz' },
+                    { value: '500', label: '500 Hz (Medium)' },
+                    { value: '800', label: '800 Hz' },
+                    { value: '1000', label: '1000 Hz (High)' },
+                    { value: '1500', label: '1500 Hz' },
+                    { value: '2000', label: '2000 Hz (Very High)' }
+                ];
+                break;
+
+            case 'duration':
+                options = [
+                    { value: '100', label: '100ms (Very Short)' },
+                    { value: '200', label: '200ms (Short)' },
+                    { value: '500', label: '500ms (Medium)' },
+                    { value: '1000', label: '1000ms (1 Second)' },
+                    { value: '2000', label: '2000ms (2 Seconds)' },
+                    { value: '3000', label: '3000ms (3 Seconds)' },
+                    { value: '5000', label: '5000ms (5 Seconds)' }
+                ];
+                break;
+
+            case 'refresh_rate':
+                // Get refresh rates from display information
+                const refreshDisplayResults = await getEnhancedMonitorInfo();
+                const refreshRates = new Set();
+                
+                refreshDisplayResults.forEach(display => {
+                    if (display.refreshRate) {
+                        refreshRates.add(display.refreshRate);
+                    }
+                });
+                
+                // Convert to array and sort
+                Array.from(refreshRates).sort((a, b) => a - b).forEach(rate => {
+                    options.push({
+                        value: rate.toString(),
+                        label: `${rate}Hz`
+                    });
+                });
+                
+                // Add common refresh rates if none detected
+                if (options.length === 0) {
+                    options = [
+                        { value: '60', label: '60Hz (Standard)' },
+                        { value: '75', label: '75Hz' },
+                        { value: '120', label: '120Hz' },
+                        { value: '144', label: '144Hz (Gaming)' },
+                        { value: '165', label: '165Hz' },
+                        { value: '240', label: '240Hz (High-end Gaming)' }
+                    ];
+                }
                 break;
                 
             default:
@@ -789,42 +1056,84 @@ app.get('/api/export/preview', (req, res) => {
     });
 });
 
-app.get('/api/export/bat/:type', (req, res) => {
-    const { type } = req.params;
-    const scripts = type === 'before' ? projectData.beforeScripts : projectData.afterScripts;
-    
-    const replaceVariables = (command, variables) => {
-        let result = command;
+app.post('/api/export/bat', async (req, res) => {
+    try {
+        const fs = require('fs').promises;
+        const commandsDir = path.join(__dirname, 'Commands');
         
-        // Replace TOOLS_PATH placeholder with absolute Windows path to Tools folder
-        let toolsPath = path.join(__dirname, 'Tools');
-        // Convert WSL path to Windows path (e.g., /mnt/c/Users... -> C:\Users...)
-        if (toolsPath.startsWith('/mnt/')) {
-            toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, '$1:\\\\').replace(/\//g, '\\\\');
-        } else {
-            toolsPath = toolsPath.replace(/\//g, '\\\\');
+        // Ensure Commands directory exists
+        try {
+            await fs.access(commandsDir);
+        } catch (error) {
+            await fs.mkdir(commandsDir, { recursive: true });
         }
-        result = result.replace(/{TOOLS_PATH}/g, toolsPath);
         
-        // Replace user variables
-        Object.entries(variables).forEach(([key, value]) => {
-            result = result.replace(new RegExp(`{${key}}`, 'g'), value.value || value);
-        });
-        return result;
-    };
+        const replaceVariables = (command, variables) => {
+            let result = command;
+            
+            // Replace TOOLS_PATH placeholder with absolute Windows path to Tools folder
+            let toolsPath = path.join(__dirname, 'Tools');
+            // Convert WSL path to Windows path (e.g., /mnt/c/Users... -> C:\Users...)
+            if (toolsPath.startsWith('/mnt/')) {
+                toolsPath = toolsPath.replace(/^\/mnt\/([a-z])\//, '$1:\\\\').replace(/\//g, '\\\\');
+            } else {
+                toolsPath = toolsPath.replace(/\//g, '\\\\');
+            }
+            result = result.replace(/{TOOLS_PATH}/g, toolsPath);
+            
+            // Replace user variables
+            Object.entries(variables).forEach(([key, value]) => {
+                result = result.replace(new RegExp(`{${key}}`, 'g'), value.value || value);
+            });
+            return result;
+        };
 
-    const batContent = `@echo off
+        const projectName = projectData.name || 'project';
+        const savedFiles = [];
+
+        // Save before script if it exists
+        if (projectData.beforeScripts.length > 0) {
+            const beforeContent = `@echo off
 REM Generated by Sunshine Script Builder
-REM ${type.charAt(0).toUpperCase() + type.slice(1)} Script for ${projectData.name || 'Untitled Project'}
+REM Before Script for ${projectName}
 
-${scripts.map(script => replaceVariables(script.command, { ...projectData.variables, ...script.variables })).join('\n')}
+${projectData.beforeScripts.map(script => replaceVariables(script.command, { ...projectData.variables, ...script.variables })).join('\n')}
 
-echo ${type.charAt(0).toUpperCase() + type.slice(1)} script completed.
+echo Before script completed.
 `;
+            const beforePath = path.join(commandsDir, `${projectName}_before.bat`);
+            await fs.writeFile(beforePath, beforeContent, 'utf8');
+            savedFiles.push(`${projectName}_before.bat`);
+        }
 
-    res.setHeader('Content-Type', 'application/octet-stream');
-    res.setHeader('Content-Disposition', `attachment; filename="${projectData.name || 'project'}_${type}.bat"`);
-    res.send(batContent);
+        // Save after script if it exists
+        if (projectData.afterScripts.length > 0) {
+            const afterContent = `@echo off
+REM Generated by Sunshine Script Builder
+REM After Script for ${projectName}
+
+${projectData.afterScripts.map(script => replaceVariables(script.command, { ...projectData.variables, ...script.variables })).join('\n')}
+
+echo After script completed.
+`;
+            const afterPath = path.join(commandsDir, `${projectName}_after.bat`);
+            await fs.writeFile(afterPath, afterContent, 'utf8');
+            savedFiles.push(`${projectName}_after.bat`);
+        }
+
+        if (savedFiles.length === 0) {
+            return res.status(400).json({ error: 'No scripts to save' });
+        }
+
+        res.json({ 
+            success: true, 
+            message: `BAT files saved to Commands folder`,
+            files: savedFiles 
+        });
+    } catch (error) {
+        console.error('Failed to save BAT files:', error);
+        res.status(500).json({ error: 'Failed to save BAT files' });
+    }
 });
 
 app.get('/api/export/json', (req, res) => {
@@ -869,6 +1178,84 @@ app.get('/api/export/json', (req, res) => {
     res.send(JSON.stringify(jsonConfig, null, 2));
 });
 
+// Check tool availability
+app.get('/api/tools/status', async (req, res) => {
+    const fs = require('fs');
+    const tools = [
+        {
+            name: 'Sunshine Audio Info',
+            filename: 'audio-info.exe',
+            description: 'Audio device enumeration tool'
+        },
+        {
+            name: 'Sunshine DXGI Info',
+            filename: 'dxgi-info.exe',
+            description: 'DirectX graphics information tool'
+        },
+        {
+            name: 'NirSoft MultiMonitorTool',
+            filename: 'MultiMonitorTool.exe',
+            description: 'Multiple monitor management utility'
+        },
+        {
+            name: 'NirSoft NirCMD',
+            filename: 'nircmd.exe',
+            description: 'Command-line utility for Windows operations'
+        },
+        {
+            name: 'NirSoft NirCMDc',
+            filename: 'nircmdc.exe',
+            description: 'Console version of NirCmd utility'
+        },
+        {
+            name: 'Microsoft QRes',
+            filename: 'QRes.exe',
+            description: 'Display resolution changer'
+        },
+        {
+            name: 'MTT Sunshine Info Extractor',
+            filename: 'sunshine_info_extractor.exe',
+            description: 'Enhanced display information extractor'
+        }
+    ];
+
+    const toolStatus = await Promise.all(tools.map(async (tool) => {
+        const toolPath = path.join(__dirname, 'Tools', tool.filename);
+        let available = false;
+        let size = 0;
+        let lastModified = null;
+
+        try {
+            const stats = fs.statSync(toolPath);
+            available = stats.isFile();
+            size = stats.size;
+            lastModified = stats.mtime;
+        } catch (error) {
+            available = false;
+        }
+
+        return {
+            name: tool.name,
+            filename: tool.filename,
+            description: tool.description,
+            available,
+            size,
+            lastModified,
+            path: toolPath
+        };
+    }));
+
+    const summary = {
+        total: tools.length,
+        available: toolStatus.filter(tool => tool.available).length,
+        missing: toolStatus.filter(tool => !tool.available).length
+    };
+
+    res.json({
+        summary,
+        tools: toolStatus
+    });
+});
 
 // Start server
 app.listen(PORT, () => {
