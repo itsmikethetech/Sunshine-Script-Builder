@@ -1,0 +1,194 @@
+
+> sunshine-script-builder-web@1.0.0 start
+> node server.js
+
+Sunshine Script Builder Web running at http://localhost:3000
+Open your browser and navigate to the URL above to use the application.
+WMI Command Result: {
+  stdout: '',
+  stderr: '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.UserFriendlyName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.UserFriendlyName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:117\r\n' +
+    '+ ... I.GetString(/home/mike/.nvm/versions/node/v22.14.0/bin/npm.UserFriend ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...serFriendlyName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.ManufacturerName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.ManufacturerName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:232\r\n' +
+    '+ ... I.GetString(/home/mike/.nvm/versions/node/v22.14.0/bin/npm.Manufactur ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...anufacturerName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.InstanceName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.InstanceName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:318\r\n' +
+    '+ ... ite-Output (/home/mike/.nvm/versions/node/v22.14.0/bin/npm.InstanceNa ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...pm.InstanceName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.UserFriendlyName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.UserFriendlyName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:117\r\n' +
+    '+ ... I.GetString(/home/mike/.nvm/versions/node/v22.14.0/bin/npm.UserFriend ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...serFriendlyName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.ManufacturerName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.ManufacturerName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:232\r\n' +
+    '+ ... I.GetString(/home/mike/.nvm/versions/node/v22.14.0/bin/npm.Manufactur ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...anufacturerName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.InstanceName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.InstanceName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:318\r\n' +
+    '+ ... ite-Output (/home/mike/.nvm/versions/node/v22.14.0/bin/npm.InstanceNa ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...pm.InstanceName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n'
+}
+Parsed WMI data: []
+Registry Command Result: {
+  stdout: '',
+  stderr: '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:147\r\n' +
+    '+ ... ite-Output (/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildNam ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...npm.PSChildName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:147\r\n' +
+    '+ ... ite-Output (/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildNam ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...npm.PSChildName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:147\r\n' +
+    '+ ... ite-Output (/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildNam ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...npm.PSChildName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:147\r\n' +
+    '+ ... ite-Output (/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildNam ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...npm.PSChildName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:147\r\n' +
+    '+ ... ite-Output (/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildNam ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...npm.PSChildName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:147\r\n' +
+    '+ ... ite-Output (/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildNam ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...npm.PSChildName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:147\r\n' +
+    '+ ... ite-Output (/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildNam ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...npm.PSChildName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:147\r\n' +
+    '+ ... ite-Output (/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildNam ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...npm.PSChildName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:147\r\n' +
+    '+ ... ite-Output (/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildNam ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...npm.PSChildName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:147\r\n' +
+    '+ ... ite-Output (/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildNam ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...npm.PSChildName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:147\r\n' +
+    '+ ... ite-Output (/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildNam ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...npm.PSChildName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n' +
+    '/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName : The term \r\n' +
+    "'/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildName' is not recognized as the name of a cmdlet, function, \r\n" +
+    'script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is \r\n' +
+    'correct and try again.\r\n' +
+    'At line:1 char:147\r\n' +
+    '+ ... ite-Output (/home/mike/.nvm/versions/node/v22.14.0/bin/npm.PSChildNam ...\r\n' +
+    '+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n' +
+    '    + CategoryInfo          : ObjectNotFound: (/home/mike/.nvm...npm.PSChildName:String) [], CommandNotFoundException\r\n' +
+    '    + FullyQualifiedErrorId : CommandNotFoundException\r\n' +
+    ' \r\n'
+}
+Parsed Registry data: []

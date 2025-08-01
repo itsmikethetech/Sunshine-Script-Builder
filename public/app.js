@@ -111,9 +111,7 @@ async function hasVariableOptions(variableName) {
 
 async function loadVariableOptions(variableName) {
     try {
-        console.log(`Loading variable options for: ${variableName}`);
         const options = await apiCall(`/variable-options/${variableName}`);
-        console.log(`Received ${options.length} options for ${variableName}:`, options);
         return options;
     } catch (error) {
         console.error(`Failed to load options for ${variableName}:`, error);
@@ -620,8 +618,14 @@ function renderDisplays(displays) {
         
         displayElement.innerHTML = `
             <div class="device-info">
-                <h4>${display.name}</h4>
-                <p>Resolution: ${display.resolution}</p>
+                <h4>${display.displayName || display.name}</h4>
+                <small class="device-id">${display.name}</small>
+                <p>Device ID: ${display.deviceId}</p>
+                <p>Resolution: ${display.resolution}${display.refreshRate ? `@${display.refreshRate}Hz` : ''}</p>
+                ${display.originPoint ? `<p>Position: ${display.originPoint.x},${display.originPoint.y}</p>` : ''}
+                ${display.manufacturer && display.manufacturer !== 'Unknown' ? `<p>Manufacturer: ${display.manufacturer}</p>` : ''}
+                ${display.adapter && display.adapter !== 'Unknown' ? `<p>GPU: ${display.adapter}</p>` : ''}
+                ${display.hdrState ? `<p>HDR: ${display.hdrState}</p>` : ''}
             </div>
             <div class="device-status">
                 <span class="status-badge ${display.isPrimary ? 'status-primary' : 'status-secondary'}">

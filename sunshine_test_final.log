@@ -1,0 +1,11 @@
+
+> sunshine-script-builder-web@1.0.0 start
+> node server.js
+
+Sunshine Script Builder Web running at http://localhost:3000
+Open your browser and navigate to the URL above to use the application.
+Failed to parse JSON from sunshine_info_extractor: SyntaxError: Expected ',' or ']' after array element in JSON at position 5 (line 1 column 6)
+    at JSON.parse (<anonymous>)
+    at getEnhancedMonitorInfo (/mnt/l/Github/Sunshine-Script-Builder/server.js:64:32)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async /mnt/l/Github/Sunshine-Script-Builder/server.js:331:26

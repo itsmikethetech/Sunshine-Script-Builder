@@ -28,12 +28,8 @@ function executePowerShell(command) {
 function executeTool(toolName) {
     return new Promise((resolve, reject) => {
         const toolPath = path.join(__dirname, 'Tools', toolName);
-        exec(toolPath, { 
-            maxBuffer: 1024 * 1024 * 10,
-            timeout: 10000 // 10 second timeout
-        }, (error, stdout, stderr) => {
+        exec(toolPath, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
             if (error) {
-                console.error(`Tool execution error for ${toolName}:`, error.message);
                 resolve({ stdout: '', stderr: error.message });
             } else {
                 resolve({ stdout, stderr });
@@ -45,80 +41,39 @@ function executeTool(toolName) {
 // Enhanced monitor information gathering
 async function getEnhancedMonitorInfo() {
     try {
-        console.log('Executing sunshine_info_extractor.exe...');
+        // Use sunshine_info_extractor.exe as the primary source
         const sunshineResult = await executeTool('sunshine_info_extractor.exe');
-        
-        console.log('sunshine_info_extractor.exe completed');
-        console.log('stdout length:', sunshineResult.stdout ? sunshineResult.stdout.length : 0);
-        console.log('stderr:', sunshineResult.stderr || 'none');
         
         if (!sunshineResult.stdout) {
             console.error('No output from sunshine_info_extractor.exe');
             return [];
         }
         
+        // Extract JSON from the output - look for the array portion
         const output = sunshineResult.stdout;
+        const jsonStartIdx = output.indexOf('[');
+        const jsonEndIdx = output.lastIndexOf(']');
         
-        // Find the JSON array more carefully - look for the array that starts after the log message
-        const logLinePattern = /\]: Info: Currently available display devices:/;
-        const logMatch = output.match(logLinePattern);
-        
-        if (!logMatch) {
-            console.error('Could not find display devices log line in sunshine_info_extractor output');
+        if (jsonStartIdx === -1 || jsonEndIdx === -1) {
+            console.error('Could not find JSON array in sunshine_info_extractor output');
             return [];
         }
         
-        // Start looking for JSON after this line
-        const searchStart = logMatch.index + logMatch[0].length;
-        const jsonStartIdx = output.indexOf('[', searchStart);
-        
-        if (jsonStartIdx === -1) {
-            console.error('Could not find JSON array start in sunshine_info_extractor output');
-            return [];
-        }
-        
-        // Find the matching closing bracket by counting brackets
-        let bracketCount = 0;
-        let jsonEndIdx = -1;
-        
-        for (let i = jsonStartIdx; i < output.length; i++) {
-            if (output[i] === '[') bracketCount++;
-            if (output[i] === ']') {
-                bracketCount--;
-                if (bracketCount === 0) {
-                    jsonEndIdx = i;
-                    break;
-                }
-            }
-        }
-        
-        if (jsonEndIdx === -1) {
-            console.error('Could not find JSON array end in sunshine_info_extractor output');
-            return [];
-        }
-        
-        let jsonString = output.substring(jsonStartIdx, jsonEndIdx + 1);
-        
-        // Fix JSON escaping issues - specifically handle Windows paths like \\.\DISPLAY1
-        // The tool outputs \\.\DISPLAY1 but JSON needs \\.\\DISPLAY1
-        jsonString = jsonString.replace(/"display_name": "\\\\\.\\DISPLAY/g, '"display_name": "\\\\.\\\\DISPLAY');
+        const jsonString = output.substring(jsonStartIdx, jsonEndIdx + 1);
         
         let displayData;
         try {
             displayData = JSON.parse(jsonString);
         } catch (parseError) {
             console.error('Failed to parse JSON from sunshine_info_extractor:', parseError);
-            console.error('Extracted JSON string length:', jsonString.length);
-            console.error('First 200 chars:', jsonString.substring(0, 200));
-            console.error('Last 200 chars:', jsonString.substring(Math.max(0, jsonString.length - 200)));
+            console.error('JSON string:', jsonString);
             return [];
         }
         
+        // Convert sunshine data to our format
         const monitors = displayData.map((display, index) => {
             const resolution = display.info.resolution.width + 'x' + display.info.resolution.height;
             const refreshRate = Math.round(display.info.refresh_rate.value.numerator / display.info.refresh_rate.value.denominator);
-            const primaryText = display.info.primary ? ' *Primary*' : '';
-            const friendlyName = display.friendly_name + ' - ' + resolution + '@' + refreshRate + 'Hz' + primaryText;
             
             return {
                 id: index + 1,
@@ -128,19 +83,14 @@ async function getEnhancedMonitorInfo() {
                 resolution: resolution,
                 refreshRate: refreshRate,
                 isPrimary: display.info.primary,
-                friendlyName: friendlyName,
+                friendlyName: display.friendly_name + ' - ' + resolution + '@' + refreshRate + 'Hz' + (display.info.primary ? ' *Primary*' : ''),
                 displayName: display.friendly_name,
-                manufacturer: 'Unknown',
-                adapter: 'Unknown',
+                manufacturer: 'Unknown', // sunshine_info_extractor doesn't provide manufacturer info
+                adapter: 'Unknown', // sunshine_info_extractor doesn't provide adapter info
                 originPoint: display.info.origin_point,
                 hdrState: display.info.hdr_state,
                 resolutionScale: display.info.resolution_scale
-            };
-        });
-        
-        console.log(`Successfully parsed ${monitors.length} displays from sunshine_info_extractor.exe`);
-        monitors.forEach((monitor, index) => {
-            console.log(`Display ${index + 1}: ${monitor.friendlyName} (${monitor.deviceId})`);
+            });
         });
         
         return monitors;
